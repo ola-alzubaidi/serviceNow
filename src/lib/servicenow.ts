@@ -1,8 +1,8 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios from 'axios'
 
 export interface ServiceNowConfig {
   instanceUrl: string
-  accessToken: string
+  basicAuth: string
 }
 
 export interface ServiceNowRecord {
@@ -22,7 +22,7 @@ export interface ServiceNowResponse<T = unknown> {
 }
 
 export class ServiceNowClient {
-  private client: AxiosInstance
+  private client: ReturnType<typeof axios.create>
   private config: ServiceNowConfig
 
   constructor(config: ServiceNowConfig) {
@@ -32,7 +32,7 @@ export class ServiceNowClient {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Bearer ${config.accessToken}`,
+        'Authorization': `Basic ${config.basicAuth}`,
       },
     })
   }
@@ -45,9 +45,9 @@ export class ServiceNowClient {
     sysparm_fields?: string
   }): Promise<ServiceNowRecord[]> {
     try {
-      const response: AxiosResponse<ServiceNowResponse<ServiceNowRecord>> = 
+      const response = 
         await this.client.get('/table/incident', { params })
-      return response.data.result
+      return (response.data as ServiceNowResponse<ServiceNowRecord>).result
     } catch (error) {
       console.error('Error fetching incidents:', error)
       throw error
@@ -62,9 +62,9 @@ export class ServiceNowClient {
     sysparm_fields?: string
   }): Promise<ServiceNowRecord[]> {
     try {
-      const response: AxiosResponse<ServiceNowResponse<ServiceNowRecord>> = 
+      const response = 
         await this.client.get('/table/sys_user', { params })
-      return response.data.result
+      return (response.data as ServiceNowResponse<ServiceNowRecord>).result
     } catch (error) {
       console.error('Error fetching users:', error)
       throw error
@@ -79,9 +79,9 @@ export class ServiceNowClient {
     sysparm_fields?: string
   }): Promise<ServiceNowRecord[]> {
     try {
-      const response: AxiosResponse<ServiceNowResponse<ServiceNowRecord>> = 
+      const response = 
         await this.client.get('/table/change_request', { params })
-      return response.data.result
+      return (response.data as ServiceNowResponse<ServiceNowRecord>).result
     } catch (error) {
       console.error('Error fetching change requests:', error)
       throw error
@@ -96,9 +96,9 @@ export class ServiceNowClient {
     sysparm_fields?: string
   }): Promise<ServiceNowRecord[]> {
     try {
-      const response: AxiosResponse<ServiceNowResponse<ServiceNowRecord>> = 
+      const response = 
         await this.client.get(`/table/${tableName}`, { params })
-      return response.data.result
+      return (response.data as ServiceNowResponse<ServiceNowRecord>).result
     } catch (error) {
       console.error(`Error fetching ${tableName} data:`, error)
       throw error
@@ -108,9 +108,9 @@ export class ServiceNowClient {
   // Create a record
   async createRecord(tableName: string, data: Partial<ServiceNowRecord>): Promise<ServiceNowRecord> {
     try {
-      const response: AxiosResponse<{ result: ServiceNowRecord }> = 
+      const response = 
         await this.client.post(`/table/${tableName}`, data)
-      return response.data.result
+      return (response.data as { result: ServiceNowRecord }).result
     } catch (error) {
       console.error(`Error creating ${tableName} record:`, error)
       throw error
@@ -120,9 +120,9 @@ export class ServiceNowClient {
   // Update a record
   async updateRecord(tableName: string, sysId: string, data: Partial<ServiceNowRecord>): Promise<ServiceNowRecord> {
     try {
-      const response: AxiosResponse<{ result: ServiceNowRecord }> = 
+      const response = 
         await this.client.patch(`/table/${tableName}/${sysId}`, data)
-      return response.data.result
+      return (response.data as { result: ServiceNowRecord }).result
     } catch (error) {
       console.error(`Error updating ${tableName} record:`, error)
       throw error
@@ -142,18 +142,35 @@ export class ServiceNowClient {
   // Get user profile
   async getUserProfile(): Promise<ServiceNowRecord> {
     try {
-      const response: AxiosResponse<{ result: ServiceNowRecord }> = 
+      const response = 
         await this.client.get('/now/user/profile')
-      return response.data.result
+      return (response.data as { result: ServiceNowRecord }).result
     } catch (error) {
       console.error('Error fetching user profile:', error)
+      throw error
+    }
+  }
+
+  // Get request items (sc_req_item table)
+  async getRequestItems(params?: {
+    sysparm_limit?: number
+    sysparm_offset?: number
+    sysparm_query?: string
+    sysparm_fields?: string
+  }): Promise<ServiceNowRecord[]> {
+    try {
+      const response = 
+        await this.client.get('/table/sc_req_item', { params })
+      return (response.data as ServiceNowResponse<ServiceNowRecord>).result
+    } catch (error) {
+      console.error('Error fetching request items:', error)
       throw error
     }
   }
 }
 
 // Utility function to create ServiceNow client from session
-export function createServiceNowClient(accessToken: string): ServiceNowClient {
+export function createServiceNowClient(basicAuth: string): ServiceNowClient {
   const instanceUrl = process.env.SERVICENOW_INSTANCE_URL!
   
   if (!instanceUrl) {
@@ -162,6 +179,6 @@ export function createServiceNowClient(accessToken: string): ServiceNowClient {
 
   return new ServiceNowClient({
     instanceUrl,
-    accessToken,
+    basicAuth,
   })
 }

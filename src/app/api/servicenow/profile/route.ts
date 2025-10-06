@@ -7,11 +7,11 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!(session as any)?.accessToken) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+          if (!(session as any)?.basicAuth) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+          }
 
-    const servicenowClient = createServiceNowClient((session as any).accessToken as string)
+    const servicenowClient = createServiceNowClient((session as any).basicAuth as string)
     
     const profile = await servicenowClient.getUserProfile()
 
