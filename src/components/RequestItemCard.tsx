@@ -100,7 +100,7 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
           </div>
         </div>
 
-        {requestItem.requested_for && (
+        {requestItem.requested_for != null && (
           <div className="mb-4">
             <h4 className="text-sm font-medium text-gray-900 mb-2">
               Requested For
@@ -113,7 +113,7 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
           </div>
         )}
 
-        {requestItem.requested_by && (
+        {requestItem.requested_by != null && (
           <div className="mb-4">
             <h4 className="text-sm font-medium text-gray-900 mb-2">
               Requested By
