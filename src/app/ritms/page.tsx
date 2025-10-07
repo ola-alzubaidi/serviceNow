@@ -76,7 +76,7 @@ export default function RITMsPage() {
                 Request Items (RITMs)
               </h1>
               <p className="text-gray-600">
-                View and manage your ServiceNow request items
+                View and manage your ServiceNow request items in this dashboard
               </p>
             </div>
             <button
