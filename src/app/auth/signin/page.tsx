@@ -151,7 +151,7 @@ export default function SignIn() {
               Using ServiceNow Password Grant
             </h3>
             <p className="text-sm text-blue-700">
-              This app uses ServiceNow's OAuth password grant to authenticate and get an access token for API calls.
+              This app uses ServiceNow&apos;s OAuth password grant to authenticate and get an access token for API calls.
             </p>
           </div>
         </form>
