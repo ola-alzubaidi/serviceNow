@@ -125,7 +125,7 @@ export const authOptions = {
       console.log('✅ Session updated with Basic Auth:', !!session.basicAuth)
       return session
     },
-    async signIn({ user, account, profile }: { user: any; account: any; profile: any }) {
+    async signIn({ user, account, profile }: { user: any; account: any; profile?: any }) {
       console.log('🔐 SignIn callback:', { 
         hasUser: !!user, 
         hasAccount: !!account, 
