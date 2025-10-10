@@ -75,25 +75,14 @@ export default function RITMsPage() {
                 Welcome, {session?.user?.name || session?.user?.email}
               </p>
             </div>
-            <div className="flex gap-3">
-              <Button
-                onClick={fetchRITMs}
-                disabled={loading}
-                variant="default"
-                size="default"
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-              <Button
-                onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-                variant="destructive"
-                size="default"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
+            <Button
+              onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+              variant="outline"
+              size="default"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>
@@ -105,6 +94,19 @@ export default function RITMsPage() {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+
+        {/* Refresh Button */}
+        <div className="flex justify-end mb-6">
+          <Button
+            onClick={fetchRITMs}
+            disabled={loading}
+            variant="default"
+            size="default"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </Button>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-12">
