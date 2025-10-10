@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { RequestItemCard } from "@/components/RequestItemCard"
 import { ServiceNowRecord } from "@/lib/servicenow"
 import { Button } from "@/components/ui/button"
@@ -10,6 +11,7 @@ import { RefreshCw, LogOut } from "lucide-react"
 
 export default function RITMsPage() {
   const { data: session, status } = useSession()
+  const router = useRouter()
   const [ritms, setRitms] = useState<ServiceNowRecord[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,10 +40,14 @@ export default function RITMsPage() {
   }, [])
 
   useEffect(() => {
-    if (mounted && (session as any)?.basicAuth) {
+    if (!mounted) return
+
+    if (status === "unauthenticated") {
+      router.push("/auth/signin")
+    } else if (mounted && (session as any)?.basicAuth) {
       fetchRITMs()
     }
-  }, [session, mounted])
+  }, [session, status, mounted, router])
 
   if (!mounted || status === "loading") {
     return (
@@ -52,20 +58,7 @@ export default function RITMsPage() {
   }
 
   if (status === "unauthenticated") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-              Access Denied
-            </h2>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
-              Please sign in to access RITMs
-            </p>
-          </div>
-        </div>
-      </div>
-    )
+    return null // Redirect is handled by useEffect
   }
 
   return (
