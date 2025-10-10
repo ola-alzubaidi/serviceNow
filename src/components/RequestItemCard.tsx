@@ -1,46 +1,50 @@
 "use client"
 
 import { ServiceNowRecord } from "@/lib/servicenow"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 
 interface RequestItemCardProps {
   requestItem: ServiceNowRecord
 }
 
 export function RequestItemCard({ requestItem }: RequestItemCardProps) {
-  const getPriorityColor = (priority: string) => {
+  const getPriorityVariant = (priority: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (priority?.toLowerCase()) {
       case '1':
       case 'critical':
-        return 'bg-red-100 text-red-800'
+        return 'destructive'
       case '2':
       case 'high':
-        return 'bg-orange-100 text-orange-800'
+        return 'default'
       case '3':
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'secondary'
       case '4':
       case 'low':
-        return 'bg-green-100 text-green-800'
+        return 'outline'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'secondary'
     }
   }
 
-  const getStateColor = (state: string) => {
+  const getStateVariant = (state: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (state?.toLowerCase()) {
       case 'new':
-        return 'bg-blue-100 text-blue-800'
+        return 'default'
       case 'in progress':
       case 'assigned':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'secondary'
       case 'resolved':
-        return 'bg-green-100 text-green-800'
+        return 'outline'
       case 'closed':
-        return 'bg-gray-100 text-gray-800'
+        return 'secondary'
       case 'cancelled':
-        return 'bg-red-100 text-red-800'
+        return 'destructive'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'secondary'
     }
   }
 
@@ -56,56 +60,54 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
   }
 
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg">
-      <div className="px-4 py-5 sm:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">
             {String(requestItem.number || requestItem.sys_id)}
-          </h3>
-          <div className="flex space-x-2">
+          </CardTitle>
+          <div className="flex gap-2">
             {requestItem.priority && (
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(String(requestItem.priority))}`}>
-                Priority {String(requestItem.priority)}
-              </span>
+              <Badge variant={getPriorityVariant(String(requestItem.priority))}>
+                P{String(requestItem.priority)}
+              </Badge>
             )}
             {requestItem.state && (
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStateColor(String(requestItem.state))}`}>
+              <Badge variant={getStateVariant(String(requestItem.state))}>
                 {String(requestItem.state)}
-              </span>
+              </Badge>
             )}
           </div>
         </div>
-        
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">
-            Description
-          </h4>
-          <p className="text-sm text-gray-600 line-clamp-3">
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <div>
+          <h4 className="text-sm font-medium mb-2">Description</h4>
+          <p className="text-sm text-muted-foreground line-clamp-3">
             {String(requestItem.short_description || requestItem.description || 'No description available')}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <dt className="font-medium text-gray-900">Created</dt>
-            <dd className="text-gray-600">
+            <dt className="font-medium">Created</dt>
+            <dd className="text-muted-foreground">
               {formatDate(requestItem.created_on || '')}
             </dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-900">Updated</dt>
-            <dd className="text-gray-600">
+            <dt className="font-medium">Updated</dt>
+            <dd className="text-muted-foreground">
               {formatDate(requestItem.updated_on || '')}
             </dd>
           </div>
         </div>
 
         {requestItem.requested_for != null && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              Requested For
-            </h4>
-            <p className="text-sm text-gray-600">
+          <div>
+            <h4 className="text-sm font-medium mb-1">Requested For</h4>
+            <p className="text-sm text-muted-foreground">
               {(requestItem.requested_for as any)?.display_value || 
                (requestItem.requested_for as any)?.value || 
                String(requestItem.requested_for)}
@@ -114,29 +116,27 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
         )}
 
         {requestItem.requested_by != null && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              Requested By
-            </h4>
-            <p className="text-sm text-gray-600">
+          <div>
+            <h4 className="text-sm font-medium mb-1">Requested By</h4>
+            <p className="text-sm text-muted-foreground">
               {(requestItem.requested_by as any)?.display_value || 
                (requestItem.requested_by as any)?.value || 
                String(requestItem.requested_by)}
             </p>
           </div>
         )}
+      </CardContent>
 
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              ID: {requestItem.sys_id}
-            </span>
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              View Details
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Separator />
+
+      <CardFooter className="flex items-center justify-between pt-4">
+        <span className="text-xs text-muted-foreground">
+          ID: {requestItem.sys_id}
+        </span>
+        <Button variant="ghost" size="sm">
+          View Details
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
