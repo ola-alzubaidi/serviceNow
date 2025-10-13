@@ -1,5 +1,47 @@
 // Polyfills for StackBlitz environment
 if (typeof global !== 'undefined') {
+  // Add fetch polyfill for Node.js environment (needed by Next.js during startup)
+  if (typeof global.fetch === 'undefined') {
+    try {
+      const undici = require('undici');
+      global.fetch = undici.fetch;
+      global.Request = undici.Request;
+      global.Response = undici.Response;
+      global.Headers = undici.Headers;
+      global.FormData = undici.FormData;
+    } catch (e) {
+      // Minimal fetch polyfill as fallback
+      global.fetch = async (url, options = {}) => {
+        const https = require('https');
+        const http = require('http');
+        const { URL } = require('url');
+        
+        const parsedUrl = new URL(url);
+        const protocol = parsedUrl.protocol === 'https:' ? https : http;
+        
+        return new Promise((resolve, reject) => {
+          const req = protocol.request(url, options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+              resolve({
+                ok: res.statusCode >= 200 && res.statusCode < 300,
+                status: res.statusCode,
+                statusText: res.statusMessage,
+                headers: res.headers,
+                json: async () => JSON.parse(data),
+                text: async () => data,
+              });
+            });
+          });
+          req.on('error', reject);
+          if (options.body) req.write(options.body);
+          req.end();
+        });
+      };
+    }
+  }
+
   // Add Request polyfill if not available
   if (typeof global.Request === 'undefined') {
     try {
