@@ -23,12 +23,17 @@ The project is pre-configured with:
 
 **Solution:** Already configured! `swcMinify: false` in `next.config.mjs` uses Babel instead.
 
-### 2. Next.js 15 Incompatibility
+### 2. Fetch Not Defined (Node.js)
+**Issue:** `ReferenceError: fetch is not defined` during Next.js startup
+
+**Solution:** Already fixed! `polyfills.js` provides `global.fetch` using `undici` package.
+
+### 3. Next.js 15 Incompatibility
 **Issue:** `workUnitAsyncStorage` error with Next.js 15
 
 **Solution:** Already using Next.js 14 for StackBlitz compatibility.
 
-### 3. Native Node.js Modules
+### 4. Native Node.js Modules
 **Issue:** Native addons (like undici, crypto) don't load properly
 
 **Solution:** Webpack fallbacks and polyfills are configured automatically.
