@@ -1,8 +1,0 @@
-{
-  "installDependencies": true,
-  "startCommand": "npm run dev",
-  "env": {
-    "NODE_OPTIONS": "--no-experimental-fetch"
-  }
-}
-
