@@ -145,7 +145,7 @@ export function Dashboard() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-between items-center mb-6">
               <TabsList>
-                <TabsTrigger value="profile">My Profile</TabsTrigger>
+                <TabsTrigger value="profile">My Profile1</TabsTrigger>
                 <TabsTrigger value="incidents">Incidents</TabsTrigger>
                 <TabsTrigger value="users">Users</TabsTrigger>
                 <TabsTrigger value="request-items">Request Items</TabsTrigger>
