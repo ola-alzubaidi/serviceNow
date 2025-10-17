@@ -75,7 +75,7 @@ export function UserCard({ user }: UserCardProps) {
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <dt className="font-medium">Department</dt>
+            <dt className="font-medium">Department1</dt>
             <dd className="text-muted-foreground">
               {(user.department as string) || 'N/A'}
             </dd>
