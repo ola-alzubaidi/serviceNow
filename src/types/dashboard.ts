@@ -1,5 +1,6 @@
 export interface DashboardConfig {
-  id: string
+  id?: string // Keep for backwards compatibility
+  sys_id: string // ServiceNow ID
   name: string
   description?: string
   type: 'ritms' | 'incidents' | 'users' | 'custom'

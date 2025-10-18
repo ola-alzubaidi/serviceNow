@@ -11,14 +11,12 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import {
-  getDashboards,
-  deleteDashboard,
-  setActiveDashboard,
-  DEFAULT_DASHBOARD
-} from '@/lib/dashboardStorage'
 import { DashboardConfig } from '@/types/dashboard'
 import { DashboardCreateModal } from '@/components/DashboardCreateModal'
+import { 
+  fetchDashboards, 
+  deleteDashboardApi 
+} from '@/lib/dashboardApi'
 
 interface DashboardSidebarProps {
   onDashboardChange?: (dashboard: DashboardConfig) => void
@@ -30,29 +28,48 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingDashboard, setEditingDashboard] = useState<DashboardConfig | null>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     loadDashboards()
   }, [])
 
-  const loadDashboards = () => {
-    const store = getDashboards()
-    setDashboards(store.dashboards)
-    setActiveDashboardIdState(store.activeDashboardId)
+  const loadDashboards = async () => {
+    setLoading(true)
+    try {
+      const data = await fetchDashboards()
+      setDashboards(data)
+      
+      // Set first dashboard as active if none selected
+      if (data.length > 0 && !activeDashboardId) {
+        setActiveDashboardIdState(data[0].sys_id)
+        if (onDashboardChange) {
+          onDashboardChange(data[0])
+        }
+      }
+    } catch (error) {
+      console.error('Error loading dashboards:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleModalSuccess = (dashboard: DashboardConfig) => {
-    loadDashboards()
+  const handleModalSuccess = async (dashboard: DashboardConfig) => {
+    await loadDashboards()
     if (onDashboardChange) {
       onDashboardChange(dashboard)
     }
   }
 
-  const handleDeleteDashboard = (id: string) => {
+  const handleDeleteDashboard = async (id: string) => {
     try {
       if (window.confirm('Are you sure you want to delete this dashboard?')) {
-        deleteDashboard(id)
-        loadDashboards()
+        const success = await deleteDashboardApi(id)
+        if (success) {
+          await loadDashboards()
+        } else {
+          alert('Failed to delete dashboard')
+        }
       }
     } catch (err) {
       console.error('Failed to delete dashboard:', err)
@@ -61,8 +78,7 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
   }
 
   const handleSetActive = (dashboard: DashboardConfig) => {
-    setActiveDashboard(dashboard.id)
-    setActiveDashboardIdState(dashboard.id)
+    setActiveDashboardIdState(dashboard.sys_id)
     
     if (onDashboardChange) {
       onDashboardChange(dashboard)
@@ -122,12 +138,22 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
 
           {/* Dashboard List */}
           <div className="flex-1 overflow-y-auto py-2">
-            <div className="px-3 space-y-2">
-              {dashboards.map((dashboard) => (
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              </div>
+            ) : dashboards.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <p className="text-xs text-slate-400">No dashboards found</p>
+                <p className="text-xs text-slate-500 mt-1">Create your first dashboard</p>
+              </div>
+            ) : (
+              <div className="px-3 space-y-2">
+                {dashboards.map((dashboard) => (
                 <div
-                  key={dashboard.id}
+                  key={dashboard.sys_id}
                   className={`group relative rounded-xl transition-all duration-200 ${
-                    activeDashboardId === dashboard.id
+                    activeDashboardId === dashboard.sys_id
                       ? 'bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-500/30'
                       : 'bg-slate-800/50 hover:bg-slate-700/50'
                   }`}
@@ -140,7 +166,7 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">
                           <div className={`p-1.5 rounded-lg ${
-                            activeDashboardId === dashboard.id
+                            activeDashboardId === dashboard.sys_id
                               ? 'bg-white/20'
                               : 'bg-slate-700/50'
                           }`}>
@@ -156,7 +182,7 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                   </button>
 
                   {/* Action buttons - show on hover */}
-                  {dashboard.id !== DEFAULT_DASHBOARD.id && activeDashboardId !== dashboard.id && (
+                  {activeDashboardId !== dashboard.sys_id && (
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                       <Button
                         size="sm"
@@ -174,7 +200,7 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                         variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleDeleteDashboard(dashboard.id)
+                          handleDeleteDashboard(dashboard.sys_id)
                         }}
                         className="h-7 w-7 p-0 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded-lg"
                       >
@@ -183,8 +209,9 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Footer - Settings hint */}
@@ -205,24 +232,30 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
       {/* Collapsed state - show icons only */}
       {isCollapsed && (
         <div className="flex-1 overflow-y-auto py-3 space-y-2">
-          {dashboards.map((dashboard) => (
-            <div key={dashboard.id} className="px-2">
-              <button
-                onClick={() => handleSetActive(dashboard)}
-                className={`w-full p-3 flex justify-center transition-all duration-200 rounded-xl relative ${
-                  activeDashboardId === dashboard.id
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg shadow-blue-500/30'
-                    : 'bg-slate-800/50 hover:bg-slate-700/50'
-                }`}
-                title={dashboard.name}
-              >
-                <LayoutDashboard className="h-5 w-5" />
-                {activeDashboardId === dashboard.id && (
-                  <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-8 w-1 bg-blue-400 rounded-l-full"></div>
-                )}
-              </button>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
             </div>
-          ))}
+          ) : (
+            dashboards.map((dashboard) => (
+              <div key={dashboard.sys_id} className="px-2">
+                <button
+                  onClick={() => handleSetActive(dashboard)}
+                  className={`w-full p-3 flex justify-center transition-all duration-200 rounded-xl relative ${
+                    activeDashboardId === dashboard.sys_id
+                      ? 'bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg shadow-blue-500/30'
+                      : 'bg-slate-800/50 hover:bg-slate-700/50'
+                  }`}
+                  title={dashboard.name}
+                >
+                  <LayoutDashboard className="h-5 w-5" />
+                  {activeDashboardId === dashboard.sys_id && (
+                    <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-8 w-1 bg-blue-400 rounded-l-full"></div>
+                  )}
+                </button>
+              </div>
+            ))
+          )}
         </div>
       )}
 

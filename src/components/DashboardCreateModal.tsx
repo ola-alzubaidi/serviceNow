@@ -17,7 +17,7 @@ import {
   LayoutDashboard, 
   Sparkles
 } from 'lucide-react'
-import { createDashboard, updateDashboard } from '@/lib/dashboardStorage'
+import { createDashboardApi, updateDashboardApi } from '@/lib/dashboardApi'
 import { DashboardConfig } from '@/types/dashboard'
 
 interface DashboardCreateModalProps {
@@ -51,7 +51,7 @@ export function DashboardCreateModal({
     }
   }, [open, editDashboard])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
@@ -63,24 +63,35 @@ export function DashboardCreateModal({
 
       if (editDashboard) {
         // Update existing dashboard
-        updateDashboard(editDashboard.id, {
+        const success = await updateDashboardApi(editDashboard.sys_id, {
           name: formData.name,
           description: formData.description,
         })
-        onSuccess(editDashboard)
+        
+        if (success) {
+          onSuccess({
+            ...editDashboard,
+            name: formData.name,
+            description: formData.description,
+          })
+        } else {
+          setError('Failed to update dashboard')
+          return
+        }
       } else {
-        // Create new blank dashboard with default settings
-        const newDashboard = createDashboard({
+        // Create new blank dashboard in ServiceNow
+        const newDashboard = await createDashboardApi({
           name: formData.name,
           description: formData.description,
-          type: 'custom', // Start as custom/blank
-          settings: {
-            limit: 50,
-            layout: 'grid',
-            filters: {},
-          }
+          type: 'custom',
         })
-        onSuccess(newDashboard)
+        
+        if (newDashboard) {
+          onSuccess(newDashboard)
+        } else {
+          setError('Failed to create dashboard')
+          return
+        }
       }
 
       // Reset form and close
