@@ -7,7 +7,10 @@ import { RequestItemCard } from "@/components/RequestItemCard"
 import { ServiceNowRecord } from "@/lib/servicenow"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { RefreshCw, LogOut } from "lucide-react"
+import { RefreshCw, LogOut, LayoutDashboard } from "lucide-react"
+import { DashboardSidebar } from "@/components/DashboardSidebar"
+import { getActiveDashboard } from "@/lib/dashboardStorage"
+import { DashboardConfig } from "@/types/dashboard"
 
 export default function RITMsPage() {
   const { data: session, status } = useSession()
@@ -16,12 +19,14 @@ export default function RITMsPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [activeDashboard, setActiveDashboard] = useState<DashboardConfig | null>(null)
 
-  const fetchRITMs = async () => {
+  const fetchRITMs = async (limit?: number) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/ritms?limit=50')
+      const itemLimit = limit || activeDashboard?.settings.limit || 50
+      const response = await fetch(`/api/ritms?limit=${itemLimit}`)
       if (!response.ok) {
         throw new Error(`Failed to fetch RITMs: ${response.statusText}`)
       }
@@ -35,8 +40,21 @@ export default function RITMsPage() {
     }
   }
 
+  const handleDashboardChange = (dashboard: DashboardConfig) => {
+    setActiveDashboard(dashboard)
+    // Fetch data based on the new dashboard's settings
+    if (dashboard.type === 'ritms') {
+      fetchRITMs(dashboard.settings.limit)
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
+    // Load active dashboard on mount
+    const dashboard = getActiveDashboard()
+    if (dashboard) {
+      setActiveDashboard(dashboard)
+    }
   }, [])
 
   useEffect(() => {
@@ -47,7 +65,7 @@ export default function RITMsPage() {
     } else if (mounted && (session as any)?.basicAuth) {
       fetchRITMs()
     }
-  }, [session, status, mounted, router])
+  }, [session, status, mounted, router, activeDashboard])
 
   if (!mounted || status === "loading") {
     return (
@@ -67,72 +85,97 @@ export default function RITMsPage() {
       <header className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Request Items (RITMs)
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">
+                ServiceNow Dashboard
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Welcome, {session?.user?.name || session?.user?.email}
               </p>
             </div>
-            <Button
-              onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-              variant="outline"
-              size="default"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
+            {activeDashboard && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg">
+                <LayoutDashboard className="h-4 w-4 text-primary" />
+                <div>
+                  <div className="text-sm font-medium">{activeDashboard.name}</div>
+                  {activeDashboard.description && (
+                    <div className="text-xs text-muted-foreground">{activeDashboard.description}</div>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => fetchRITMs()}
+                disabled={loading}
+                variant="outline"
+                size="default"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                variant="outline"
+                size="default"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+      {/* Main Content with Sidebar */}
+      <div className="flex h-[calc(100vh-88px)]">
+        {/* Sidebar */}
+        <DashboardSidebar onDashboardChange={handleDashboardChange} />
 
-        {/* Refresh Button */}
-        <div className="flex justify-end mb-6">
-          <Button
-            onClick={fetchRITMs}
-            disabled={loading}
-            variant="default"
-            size="default"
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </Button>
-        </div>
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {ritms.length > 0 ? (
-              ritms.map((ritm) => (
-                <RequestItemCard key={ritm.sys_id} requestItem={ritm} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">No RITMs found</p>
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
+            ) : (
+              <>
+                <div className={`grid gap-6 ${
+                  activeDashboard?.settings.layout === 'list' 
+                    ? 'grid-cols-1' 
+                    : activeDashboard?.settings.layout === 'table'
+                    ? 'grid-cols-1'
+                    : 'md:grid-cols-2 lg:grid-cols-3'
+                }`}>
+                  {ritms.length > 0 ? (
+                    ritms.map((ritm) => (
+                      <RequestItemCard key={ritm.sys_id} requestItem={ritm} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-muted-foreground">No RITMs found</p>
+                    </div>
+                  )}
+                </div>
+
+                {ritms.length > 0 && (
+                  <Alert className="mt-8 bg-blue-50 border-blue-200">
+                    <AlertDescription className="text-blue-700">
+                      Found {ritms.length} RITMs. Showing up to {activeDashboard?.settings.limit || 50} request items from ServiceNow.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </>
             )}
           </div>
-        )}
-
-        {ritms.length > 0 && (
-          <Alert className="mt-8 bg-blue-50 border-blue-200">
-            <AlertDescription className="text-blue-700">
-              Found {ritms.length} RITMs. Showing up to 50 request items from ServiceNow.
-            </AlertDescription>
-          </Alert>
-        )}
+        </div>
       </div>
     </div>
   )
