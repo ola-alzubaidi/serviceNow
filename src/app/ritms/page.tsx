@@ -107,30 +107,6 @@ export default function RITMsPage() {
               </div>
             )}
             <div className="flex items-center gap-3">
-              {/* View Mode Toggle */}
-              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                <Button
-                  onClick={() => setViewMode('cards')}
-                  variant={viewMode === 'cards' ? 'default' : 'ghost'}
-                  size="sm"
-                  className={`h-8 ${viewMode === 'cards' ? 'shadow-sm' : ''}`}
-                  title="Card View"
-                >
-                  <LayoutGrid className="h-4 w-4 mr-2" />
-                  Cards
-                </Button>
-                <Button
-                  onClick={() => setViewMode('table')}
-                  variant={viewMode === 'table' ? 'default' : 'ghost'}
-                  size="sm"
-                  className={`h-8 ${viewMode === 'table' ? 'shadow-sm' : ''}`}
-                  title="Table View"
-                >
-                  <Table2 className="h-4 w-4 mr-2" />
-                  Table
-                </Button>
-              </div>
-              
               <Button
                 onClick={() => fetchRITMs()}
                 disabled={loading}
@@ -166,6 +142,35 @@ export default function RITMsPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            {/* View Mode Toggle */}
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <span className="font-medium">View as:</span>
+              </div>
+              <div className="flex items-center gap-1 bg-white border rounded-lg p-1 shadow-sm">
+                <Button
+                  onClick={() => setViewMode('cards')}
+                  variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`h-9 ${viewMode === 'cards' ? 'shadow-sm' : ''}`}
+                  title="Card View"
+                >
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Cards
+                </Button>
+                <Button
+                  onClick={() => setViewMode('table')}
+                  variant={viewMode === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`h-9 ${viewMode === 'table' ? 'shadow-sm' : ''}`}
+                  title="Table View"
+                >
+                  <Table2 className="h-4 w-4 mr-2" />
+                  Table
+                </Button>
+              </div>
+            </div>
 
             {loading ? (
               <div className="flex justify-center py-12">
