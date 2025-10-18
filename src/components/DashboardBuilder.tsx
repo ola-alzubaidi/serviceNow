@@ -51,35 +51,50 @@ export function DashboardBuilder({ dashboard }: DashboardBuilderProps) {
       title: 'Request Items',
       description: 'Display ServiceNow Request Items (RITMs)',
       icon: ListChecks,
-      color: 'blue'
+      bgColor: 'bg-blue-100',
+      hoverBg: 'hover:bg-blue-50',
+      iconColor: 'text-blue-600',
+      borderHover: 'hover:border-blue-500'
     },
     {
       type: 'incidents' as const,
       title: 'Incidents',
       description: 'Show incident tickets',
       icon: AlertCircle,
-      color: 'red'
+      bgColor: 'bg-red-100',
+      hoverBg: 'hover:bg-red-50',
+      iconColor: 'text-red-600',
+      borderHover: 'hover:border-red-500'
     },
     {
       type: 'users' as const,
       title: 'Users',
       description: 'List ServiceNow users',
       icon: Users,
-      color: 'green'
+      bgColor: 'bg-green-100',
+      hoverBg: 'hover:bg-green-50',
+      iconColor: 'text-green-600',
+      borderHover: 'hover:border-green-500'
     },
     {
       type: 'chart' as const,
       title: 'Chart',
       description: 'Data visualization charts',
       icon: BarChart3,
-      color: 'purple'
+      bgColor: 'bg-purple-100',
+      hoverBg: 'hover:bg-purple-50',
+      iconColor: 'text-purple-600',
+      borderHover: 'hover:border-purple-500'
     },
     {
       type: 'stats' as const,
       title: 'Statistics',
       description: 'Key metrics and numbers',
       icon: Table2,
-      color: 'orange'
+      bgColor: 'bg-orange-100',
+      hoverBg: 'hover:bg-orange-50',
+      iconColor: 'text-orange-600',
+      borderHover: 'hover:border-orange-500'
     }
   ]
 
@@ -122,10 +137,10 @@ export function DashboardBuilder({ dashboard }: DashboardBuilderProps) {
                   <button
                     key={option.type}
                     onClick={() => addWidget(option.type, option.title)}
-                    className={`p-4 border-2 rounded-lg hover:border-${option.color}-500 hover:bg-${option.color}-50 transition-all text-left group`}
+                    className={`p-4 border-2 rounded-lg ${option.borderHover} ${option.hoverBg} transition-all text-left group`}
                   >
-                    <div className={`inline-flex p-2 bg-${option.color}-100 rounded-lg mb-2 group-hover:bg-${option.color}-200`}>
-                      <Icon className={`h-5 w-5 text-${option.color}-600`} />
+                    <div className={`inline-flex p-2 ${option.bgColor} rounded-lg mb-2`}>
+                      <Icon className={`h-5 w-5 ${option.iconColor}`} />
                     </div>
                     <h4 className="font-semibold text-sm text-slate-900">{option.title}</h4>
                     <p className="text-xs text-slate-600 mt-1">{option.description}</p>
@@ -179,8 +194,8 @@ export function DashboardBuilder({ dashboard }: DashboardBuilderProps) {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 bg-${option?.color}-100 rounded-lg`}>
-                        <Icon className={`h-5 w-5 text-${option?.color}-600`} />
+                      <div className={`p-2 ${option?.bgColor || 'bg-slate-100'} rounded-lg`}>
+                        <Icon className={`h-5 w-5 ${option?.iconColor || 'text-slate-600'}`} />
                       </div>
                       <div>
                         <CardTitle className="text-base">{widget.title}</CardTitle>
