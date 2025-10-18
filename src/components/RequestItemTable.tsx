@@ -54,7 +54,7 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
     }
     if (s === 'in progress' || s === 'assigned' || s === '2' || s === '3') {
       return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300">
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <AlertCircle className="h-3 w-3" />
         In Progress
       </span>
     }

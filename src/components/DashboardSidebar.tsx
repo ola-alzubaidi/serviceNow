@@ -266,35 +266,6 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="sidebar-limit" className="text-xs text-slate-300">Limit</Label>
-                  <Input
-                    id="sidebar-limit"
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={formData.limit}
-                    onChange={(e) => setFormData({ ...formData, limit: parseInt(e.target.value) || 50 })}
-                    className="h-8 text-sm bg-slate-700/50 border-slate-600 text-white focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="sidebar-layout" className="text-xs text-slate-300">Layout</Label>
-                  <select
-                    id="sidebar-layout"
-                    className="w-full border border-slate-600 rounded-md px-2 py-1 text-sm bg-slate-700/50 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    value={formData.layout}
-                    onChange={(e) => setFormData({ ...formData, layout: e.target.value as any })}
-                  >
-                    <option value="grid">Grid</option>
-                    <option value="list">List</option>
-                    <option value="table">Table</option>
-                  </select>
-                </div>
-              </div>
-
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -352,22 +323,6 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                         {dashboard.description && (
                           <p className="text-xs opacity-70 truncate ml-8">{dashboard.description}</p>
                         )}
-                        <div className="flex gap-1.5 mt-2.5 ml-8">
-                          <span className={`text-[10px] px-2 py-1 rounded-md font-medium uppercase tracking-wide ${
-                            activeDashboardId === dashboard.id
-                              ? 'bg-white/20 text-white'
-                              : 'bg-slate-700/70 text-slate-300'
-                          }`}>
-                            {dashboard.type}
-                          </span>
-                          <span className={`text-[10px] px-2 py-1 rounded-md font-medium ${
-                            activeDashboardId === dashboard.id
-                              ? 'bg-white/20 text-white'
-                              : 'bg-slate-700/70 text-slate-300'
-                          }`}>
-                            {dashboard.settings.limit} items
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </button>

@@ -62,7 +62,7 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
       return { 
         label: 'In Progress', 
         class: 'bg-purple-100 text-purple-700 border-purple-300',
-        icon: <Loader2 className="h-3 w-3 animate-spin" />
+        icon: <AlertCircle className="h-3 w-3" />
       }
     }
     if (s === 'resolved' || s === '4') {
