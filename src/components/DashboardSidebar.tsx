@@ -2,29 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { 
   LayoutDashboard, 
   Plus, 
   Trash2, 
-  Edit, 
-  Check,
-  X,
+  Edit,
   Settings,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
 import {
   getDashboards,
-  createDashboard,
   deleteDashboard,
-  updateDashboard,
   setActiveDashboard,
   DEFAULT_DASHBOARD
 } from '@/lib/dashboardStorage'
 import { DashboardConfig } from '@/types/dashboard'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { DashboardCreateModal } from '@/components/DashboardCreateModal'
 
 interface DashboardSidebarProps {
   onDashboardChange?: (dashboard: DashboardConfig) => void
@@ -33,25 +27,9 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
   const [dashboards, setDashboards] = useState<DashboardConfig[]>([])
   const [activeDashboardId, setActiveDashboardIdState] = useState<string | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  
-  // Form state
-  const [formData, setFormData] = useState<{
-    name: string
-    description: string
-    type: 'ritms' | 'incidents' | 'users' | 'custom'
-    limit: number
-    layout: 'grid' | 'list' | 'table'
-  }>({
-    name: '',
-    description: '',
-    type: 'ritms',
-    limit: 50,
-    layout: 'grid',
-  })
+  const [showModal, setShowModal] = useState(false)
+  const [editingDashboard, setEditingDashboard] = useState<DashboardConfig | null>(null)
 
   useEffect(() => {
     loadDashboards()
@@ -63,73 +41,22 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
     setActiveDashboardIdState(store.activeDashboardId)
   }
 
-  const handleCreateDashboard = () => {
-    try {
-      setError(null)
-      
-      if (!formData.name.trim()) {
-        setError('Dashboard name is required')
-        return
-      }
-
-      const newDashboard = createDashboard({
-        name: formData.name,
-        description: formData.description,
-        type: formData.type,
-        settings: {
-          limit: formData.limit,
-          layout: formData.layout,
-          filters: {},
-        }
-      })
-
-      loadDashboards()
-      setShowCreateForm(false)
-      resetForm()
-      
-      if (onDashboardChange) {
-        onDashboardChange(newDashboard)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create dashboard')
-    }
-  }
-
-  const handleUpdateDashboard = (id: string) => {
-    try {
-      setError(null)
-      
-      if (!formData.name.trim()) {
-        setError('Dashboard name is required')
-        return
-      }
-
-      updateDashboard(id, {
-        name: formData.name,
-        description: formData.description,
-        settings: {
-          limit: formData.limit,
-          layout: formData.layout,
-        }
-      })
-
-      loadDashboards()
-      setEditingId(null)
-      resetForm()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update dashboard')
+  const handleModalSuccess = (dashboard: DashboardConfig) => {
+    loadDashboards()
+    if (onDashboardChange) {
+      onDashboardChange(dashboard)
     }
   }
 
   const handleDeleteDashboard = (id: string) => {
     try {
-      setError(null)
       if (window.confirm('Are you sure you want to delete this dashboard?')) {
         deleteDashboard(id)
         loadDashboards()
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete dashboard')
+      console.error('Failed to delete dashboard:', err)
+      alert(err instanceof Error ? err.message : 'Failed to delete dashboard')
     }
   }
 
@@ -142,31 +69,14 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
     }
   }
 
-  const startEdit = (dashboard: DashboardConfig) => {
-    setEditingId(dashboard.id)
-    setFormData({
-      name: dashboard.name,
-      description: dashboard.description || '',
-      type: dashboard.type,
-      limit: dashboard.settings.limit || 50,
-      layout: dashboard.settings.layout || 'grid',
-    })
-    setShowCreateForm(false)
+  const handleOpenCreateModal = () => {
+    setEditingDashboard(null)
+    setShowModal(true)
   }
 
-  const cancelEdit = () => {
-    setEditingId(null)
-    resetForm()
-  }
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      type: 'ritms',
-      limit: 50,
-      layout: 'grid',
-    })
+  const handleOpenEditModal = (dashboard: DashboardConfig) => {
+    setEditingDashboard(dashboard)
+    setShowModal(true)
   }
 
   return (
@@ -198,99 +108,17 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
 
       {!isCollapsed && (
         <>
-          {/* Error Alert */}
-          {error && (
-            <div className="p-4">
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                <p className="text-xs text-red-300">{error}</p>
-              </div>
-            </div>
-          )}
-
           {/* Create Dashboard Button */}
-          {!showCreateForm && !editingId && (
-            <div className="p-4 border-b border-slate-700/50">
-              <Button
-                onClick={() => setShowCreateForm(true)}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/30 border-0"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Dashboard
-              </Button>
-            </div>
-          )}
-
-          {/* Create/Edit Form */}
-          {(showCreateForm || editingId) && (
-            <div className="p-4 border-b border-slate-700/50 space-y-3 max-h-[400px] overflow-y-auto bg-slate-800/50">
-              <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-blue-400"></div>
-                {editingId ? 'Edit Dashboard' : 'Create Dashboard'}
-              </h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="sidebar-name" className="text-xs text-slate-300">Name</Label>
-                <Input
-                  id="sidebar-name"
-                  placeholder="Dashboard name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="h-8 text-sm bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sidebar-desc" className="text-xs text-slate-300">Description</Label>
-                <Input
-                  id="sidebar-desc"
-                  placeholder="Optional"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="h-8 text-sm bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sidebar-type" className="text-xs text-slate-300">Type</Label>
-                <select
-                  id="sidebar-type"
-                  className="w-full border border-slate-600 rounded-md px-2 py-1 text-sm bg-slate-700/50 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                >
-                  <option value="ritms">RITMs</option>
-                  <option value="incidents">Incidents</option>
-                  <option value="users">Users</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowCreateForm(false)
-                    setEditingId(null)
-                    resetForm()
-                  }}
-                  className="flex-1 h-8 text-xs bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => editingId ? handleUpdateDashboard(editingId) : handleCreateDashboard()}
-                  className="flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white border-0"
-                >
-                  <Check className="h-3 w-3 mr-1" />
-                  {editingId ? 'Update' : 'Create'}
-                </Button>
-              </div>
-            </div>
-          )}
+          <div className="p-4 border-b border-slate-700/50">
+            <Button
+              onClick={handleOpenCreateModal}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/30 border-0"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Dashboard
+            </Button>
+          </div>
 
           {/* Dashboard List */}
           <div className="flex-1 overflow-y-auto py-2">
@@ -335,7 +163,7 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
                         variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation()
-                          startEdit(dashboard)
+                          handleOpenEditModal(dashboard)
                         }}
                         className="h-7 w-7 p-0 bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg"
                       >
@@ -397,6 +225,14 @@ export function DashboardSidebar({ onDashboardChange }: DashboardSidebarProps) {
           ))}
         </div>
       )}
+
+      {/* Dashboard Create/Edit Modal */}
+      <DashboardCreateModal
+        open={showModal}
+        onOpenChange={setShowModal}
+        onSuccess={handleModalSuccess}
+        editDashboard={editingDashboard}
+      />
     </div>
   )
 }
