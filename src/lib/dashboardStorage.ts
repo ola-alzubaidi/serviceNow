@@ -6,7 +6,7 @@ const STORAGE_KEY = 'servicenow_dashboards'
 export const DEFAULT_DASHBOARD: DashboardConfig = {
   id: 'default-ritms',
   name: 'RITMS Dashboard',
-  description: 'Default dashboard showing Request Items',
+  description: '',
   type: 'ritms',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
