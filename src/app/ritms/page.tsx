@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { RefreshCw, LogOut, LayoutDashboard, LayoutGrid, Table2 } from "lucide-react"
 import { DashboardSidebar } from "@/components/DashboardSidebar"
+import { DashboardBuilder } from "@/components/DashboardBuilder"
 import { getActiveDashboard } from "@/lib/dashboardStorage"
 import { DashboardConfig } from "@/types/dashboard"
 
@@ -143,69 +144,76 @@ export default function RITMsPage() {
               </Alert>
             )}
 
-            {/* View Mode Toggle */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <span className="font-medium">View as:</span>
-              </div>
-              <div className="flex items-center gap-1 bg-white border rounded-lg p-1 shadow-sm">
-                <Button
-                  onClick={() => setViewMode('cards')}
-                  variant={viewMode === 'cards' ? 'default' : 'ghost'}
-                  size="sm"
-                  className={`h-9 ${viewMode === 'cards' ? 'shadow-sm' : ''}`}
-                  title="Card View"
-                >
-                  <LayoutGrid className="h-4 w-4 mr-2" />
-                  Cards
-                </Button>
-                <Button
-                  onClick={() => setViewMode('table')}
-                  variant={viewMode === 'table' ? 'default' : 'ghost'}
-                  size="sm"
-                  className={`h-9 ${viewMode === 'table' ? 'shadow-sm' : ''}`}
-                  title="Table View"
-                >
-                  <Table2 className="h-4 w-4 mr-2" />
-                  Table
-                </Button>
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
+            {/* Show Dashboard Builder for Custom Dashboards */}
+            {activeDashboard?.type === 'custom' ? (
+              <DashboardBuilder dashboard={activeDashboard} />
             ) : (
               <>
-                {viewMode === 'table' ? (
-                  <RequestItemTable requestItems={ritms} />
+                {/* View Mode Toggle */}
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <span className="font-medium">View as:</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-white border rounded-lg p-1 shadow-sm">
+                    <Button
+                      onClick={() => setViewMode('cards')}
+                      variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                      size="sm"
+                      className={`h-9 ${viewMode === 'cards' ? 'shadow-sm' : ''}`}
+                      title="Card View"
+                    >
+                      <LayoutGrid className="h-4 w-4 mr-2" />
+                      Cards
+                    </Button>
+                    <Button
+                      onClick={() => setViewMode('table')}
+                      variant={viewMode === 'table' ? 'default' : 'ghost'}
+                      size="sm"
+                      className={`h-9 ${viewMode === 'table' ? 'shadow-sm' : ''}`}
+                      title="Table View"
+                    >
+                      <Table2 className="h-4 w-4 mr-2" />
+                      Table
+                    </Button>
+                  </div>
+                </div>
+
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
                 ) : (
-                  <div className={`grid gap-6 ${
-                    activeDashboard?.settings.layout === 'list' 
-                      ? 'grid-cols-1' 
-                      : activeDashboard?.settings.layout === 'table'
-                      ? 'grid-cols-1'
-                      : 'md:grid-cols-2 lg:grid-cols-3'
-                  }`}>
-                    {ritms.length > 0 ? (
-                      ritms.map((ritm) => (
-                        <RequestItemCard key={ritm.sys_id} requestItem={ritm} />
-                      ))
+                  <>
+                    {viewMode === 'table' ? (
+                      <RequestItemTable requestItems={ritms} />
                     ) : (
-                      <div className="col-span-full text-center py-12">
-                        <p className="text-muted-foreground">No RITMs found</p>
+                      <div className={`grid gap-6 ${
+                        activeDashboard?.settings.layout === 'list' 
+                          ? 'grid-cols-1' 
+                          : activeDashboard?.settings.layout === 'table'
+                          ? 'grid-cols-1'
+                          : 'md:grid-cols-2 lg:grid-cols-3'
+                      }`}>
+                        {ritms.length > 0 ? (
+                          ritms.map((ritm) => (
+                            <RequestItemCard key={ritm.sys_id} requestItem={ritm} />
+                          ))
+                        ) : (
+                          <div className="col-span-full text-center py-12">
+                            <p className="text-muted-foreground">No RITMs found</p>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
 
-                {ritms.length > 0 && viewMode === 'cards' && (
-                  <Alert className="mt-8 bg-blue-50 border-blue-200">
-                    <AlertDescription className="text-blue-700">
-                      Found {ritms.length} RITMs. Showing up to {activeDashboard?.settings.limit || 50} request items from ServiceNow.
-                    </AlertDescription>
-                  </Alert>
+                    {ritms.length > 0 && viewMode === 'cards' && (
+                      <Alert className="mt-8 bg-blue-50 border-blue-200">
+                        <AlertDescription className="text-blue-700">
+                          Found {ritms.length} RITMs. Showing up to {activeDashboard?.settings.limit || 50} request items from ServiceNow.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </>
                 )}
               </>
             )}
