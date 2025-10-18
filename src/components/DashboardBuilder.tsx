@@ -11,7 +11,9 @@ import {
   Users,
   AlertCircle,
   Settings,
-  Trash2
+  Trash2,
+  LayoutDashboard,
+  Sparkles
 } from 'lucide-react'
 import { DashboardConfig } from '@/types/dashboard'
 
