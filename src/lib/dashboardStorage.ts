@@ -5,7 +5,6 @@ const STORAGE_KEY = 'servicenow_dashboards'
 // Default RITMS dashboard
 export const DEFAULT_DASHBOARD: DashboardConfig = {
   id: 'default-ritms',
-  sys_id: 'default-ritms',
   name: 'Team Dashboard',
   description: '',
   type: 'ritms',
@@ -56,12 +55,10 @@ export function saveDashboards(store: DashboardStore): void {
   }
 }
 
-export function createDashboard(dashboard: Omit<DashboardConfig, 'id' | 'sys_id' | 'createdAt' | 'updatedAt'>): DashboardConfig {
-  const dashboardId = `dashboard-${Date.now()}`
+export function createDashboard(dashboard: Omit<DashboardConfig, 'id' | 'createdAt' | 'updatedAt'>): DashboardConfig {
   const newDashboard: DashboardConfig = {
     ...dashboard,
-    id: dashboardId,
-    sys_id: dashboardId,
+    id: `dashboard-${Date.now()}`,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
