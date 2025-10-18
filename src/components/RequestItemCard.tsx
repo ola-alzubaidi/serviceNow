@@ -1,54 +1,120 @@
 "use client"
 
 import { ServiceNowRecord } from "@/lib/servicenow"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { 
+  Calendar, 
+  User, 
+  Clock, 
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Loader2
+} from "lucide-react"
 
 interface RequestItemCardProps {
   requestItem: ServiceNowRecord
 }
 
 export function RequestItemCard({ requestItem }: RequestItemCardProps) {
-  const getPriorityVariant = (priority: string): "default" | "secondary" | "destructive" | "outline" => {
-    switch (priority?.toLowerCase()) {
-      case '1':
-      case 'critical':
-        return 'destructive'
-      case '2':
-      case 'high':
-        return 'default'
-      case '3':
-      case 'medium':
-        return 'secondary'
-      case '4':
-      case 'low':
-        return 'outline'
-      default:
-        return 'secondary'
+  const getPriorityConfig = (priority: string) => {
+    const p = priority?.toLowerCase()
+    if (p === '1' || p === 'critical') {
+      return { 
+        label: 'Critical', 
+        class: 'bg-red-100 text-red-700 border-red-300',
+        icon: <AlertCircle className="h-3 w-3" />
+      }
+    }
+    if (p === '2' || p === 'high') {
+      return { 
+        label: 'High', 
+        class: 'bg-orange-100 text-orange-700 border-orange-300',
+        icon: <AlertCircle className="h-3 w-3" />
+      }
+    }
+    if (p === '3' || p === 'medium') {
+      return { 
+        label: 'Medium', 
+        class: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+        icon: <AlertCircle className="h-3 w-3" />
+      }
+    }
+    return { 
+      label: 'Low', 
+      class: 'bg-green-100 text-green-700 border-green-300',
+      icon: <AlertCircle className="h-3 w-3" />
     }
   }
 
-  const getStateVariant = (state: string): "default" | "secondary" | "destructive" | "outline" => {
-    switch (state?.toLowerCase()) {
-      case 'new':
-        return 'default'
-      case 'in progress':
-      case 'assigned':
-        return 'secondary'
-      case 'resolved':
-        return 'outline'
-      case 'closed':
-        return 'secondary'
-      case 'cancelled':
-        return 'destructive'
-      default:
-        return 'secondary'
+  const getStateConfig = (state: string) => {
+    const s = state?.toLowerCase()
+    if (s === 'new' || s === '1') {
+      return { 
+        label: 'New', 
+        class: 'bg-blue-100 text-blue-700 border-blue-300',
+        icon: <FileText className="h-3 w-3" />
+      }
+    }
+    if (s === 'in progress' || s === 'assigned' || s === '2' || s === '3') {
+      return { 
+        label: 'In Progress', 
+        class: 'bg-purple-100 text-purple-700 border-purple-300',
+        icon: <Loader2 className="h-3 w-3 animate-spin" />
+      }
+    }
+    if (s === 'resolved' || s === '4') {
+      return { 
+        label: 'Resolved', 
+        class: 'bg-green-100 text-green-700 border-green-300',
+        icon: <CheckCircle2 className="h-3 w-3" />
+      }
+    }
+    if (s === 'closed' || s === '6' || s === '7') {
+      return { 
+        label: 'Closed', 
+        class: 'bg-slate-100 text-slate-700 border-slate-300',
+        icon: <CheckCircle2 className="h-3 w-3" />
+      }
+    }
+    if (s === 'cancelled' || s === '5') {
+      return { 
+        label: 'Cancelled', 
+        class: 'bg-red-100 text-red-700 border-red-300',
+        icon: <XCircle className="h-3 w-3" />
+      }
+    }
+    return { 
+      label: state || 'Unknown', 
+      class: 'bg-slate-100 text-slate-700 border-slate-300',
+      icon: <FileText className="h-3 w-3" />
     }
   }
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffMins = Math.floor(diffMs / (1000 * 60))
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    })
+  }
+
+  const formatFullDate = (dateString: string) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -59,84 +125,102 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
     })
   }
 
+  const priorityConfig = requestItem.priority ? getPriorityConfig(String(requestItem.priority)) : null
+  const stateConfig = requestItem.state ? getStateConfig(String(requestItem.state)) : null
+
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">
-            {String(requestItem.number || requestItem.sys_id)}
-          </CardTitle>
-          <div className="flex gap-2">
-            {requestItem.priority && (
-              <Badge variant={getPriorityVariant(String(requestItem.priority))}>
-                P{String(requestItem.priority)}
-              </Badge>
+    <Card className="hover:shadow-xl transition-all duration-200 border-l-4 hover:border-l-blue-500 group">
+      <CardHeader className="pb-3">
+        {/* Header with Number and Badges */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
+              <h3 className="font-bold text-base text-slate-900 truncate">
+                {String(requestItem.number || requestItem.sys_id)}
+              </h3>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-1.5 items-end">
+            {stateConfig && (
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${stateConfig.class}`}>
+                {stateConfig.icon}
+                {stateConfig.label}
+              </div>
             )}
-            {requestItem.state && (
-              <Badge variant={getStateVariant(String(requestItem.state))}>
-                {String(requestItem.state)}
-              </Badge>
+            {priorityConfig && (
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${priorityConfig.class}`}>
+                {priorityConfig.icon}
+                {priorityConfig.label}
+              </div>
             )}
           </div>
         </div>
+
+        {/* Description */}
+        <p className="text-sm text-slate-700 line-clamp-2 leading-relaxed">
+          {String(requestItem.short_description || requestItem.description || 'No description available')}
+        </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div>
-          <h4 className="text-sm font-medium mb-2">Description</h4>
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {String(requestItem.short_description || requestItem.description || 'No description available')}
-          </p>
+      <CardContent className="pt-0 space-y-3">
+        {/* User Information */}
+        <div className="grid grid-cols-2 gap-3">
+          {requestItem.requested_for != null && (
+            <div className="flex items-start gap-2 p-2 bg-slate-50 rounded-lg">
+              <User className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-slate-500 mb-0.5">Requested For</p>
+                <p className="text-sm font-medium text-slate-900 truncate">
+                  {(requestItem.requested_for as any)?.display_value || 
+                   (requestItem.requested_for as any)?.value || 
+                   String(requestItem.requested_for)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {requestItem.requested_by != null && (
+            <div className="flex items-start gap-2 p-2 bg-slate-50 rounded-lg">
+              <User className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-slate-500 mb-0.5">Requested By</p>
+                <p className="text-sm font-medium text-slate-900 truncate">
+                  {(requestItem.requested_by as any)?.display_value || 
+                   (requestItem.requested_by as any)?.value || 
+                   String(requestItem.requested_by)}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="font-medium">Created</dt>
-            <dd className="text-muted-foreground">
+        {/* Date Information */}
+        <div className="flex items-center justify-between text-xs pt-2 border-t">
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Calendar className="h-3.5 w-3.5" />
+            <span className="font-medium">Created:</span>
+            <span title={formatFullDate(requestItem.created_on || '')}>
               {formatDate(requestItem.created_on || '')}
-            </dd>
+            </span>
           </div>
-          <div>
-            <dt className="font-medium">Updated</dt>
-            <dd className="text-muted-foreground">
+          
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Clock className="h-3.5 w-3.5" />
+            <span className="font-medium">Updated:</span>
+            <span title={formatFullDate(requestItem.updated_on || '')}>
               {formatDate(requestItem.updated_on || '')}
-            </dd>
+            </span>
           </div>
         </div>
 
-        {requestItem.requested_for != null && (
-          <div>
-            <h4 className="text-sm font-medium mb-1">Requested For</h4>
-            <p className="text-sm text-muted-foreground">
-              {(requestItem.requested_for as any)?.display_value || 
-               (requestItem.requested_for as any)?.value || 
-               String(requestItem.requested_for)}
-            </p>
-          </div>
-        )}
-
-        {requestItem.requested_by != null && (
-          <div>
-            <h4 className="text-sm font-medium mb-1">Requested By</h4>
-            <p className="text-sm text-muted-foreground">
-              {(requestItem.requested_by as any)?.display_value || 
-               (requestItem.requested_by as any)?.value || 
-               String(requestItem.requested_by)}
-            </p>
-          </div>
-        )}
+        {/* Sys ID - Hidden until hover */}
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-slate-400 font-mono pt-1">
+          {requestItem.sys_id}
+        </div>
       </CardContent>
-
-      <Separator />
-
-      <CardFooter className="flex items-center justify-between pt-4">
-        <span className="text-xs text-muted-foreground">
-          ID: {requestItem.sys_id}
-        </span>
-        <Button variant="ghost" size="sm">
-          View Details
-        </Button>
-      </CardFooter>
     </Card>
   )
 }
+
