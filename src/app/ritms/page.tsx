@@ -89,24 +89,26 @@ export default function RITMsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">
-                ServiceNow Dashboard
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Welcome, {session?.user?.name || session?.user?.email}
-              </p>
-            </div>
-            {activeDashboard && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg">
-                <LayoutDashboard className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <LayoutDashboard className="h-6 w-6 text-blue-600" />
+                </div>
                 <div>
-                  <div className="text-sm font-medium">{activeDashboard.name}</div>
-                  {activeDashboard.description && (
-                    <div className="text-xs text-muted-foreground">{activeDashboard.description}</div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {activeDashboard?.name || 'Dashboard'}
+                  </h1>
+                  {activeDashboard?.description ? (
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {activeDashboard.description}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Welcome, {session?.user?.name || session?.user?.email}
+                    </p>
                   )}
                 </div>
               </div>
-            )}
+            </div>
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => fetchRITMs()}
