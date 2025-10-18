@@ -4,10 +4,11 @@ import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { RequestItemCard } from "@/components/RequestItemCard"
+import { RequestItemTable } from "@/components/RequestItemTable"
 import { ServiceNowRecord } from "@/lib/servicenow"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { RefreshCw, LogOut, LayoutDashboard } from "lucide-react"
+import { RefreshCw, LogOut, LayoutDashboard, LayoutGrid, Table2 } from "lucide-react"
 import { DashboardSidebar } from "@/components/DashboardSidebar"
 import { getActiveDashboard } from "@/lib/dashboardStorage"
 import { DashboardConfig } from "@/types/dashboard"
@@ -20,6 +21,7 @@ export default function RITMsPage() {
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [activeDashboard, setActiveDashboard] = useState<DashboardConfig | null>(null)
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
 
   const fetchRITMs = async (limit?: number) => {
     setLoading(true)
@@ -105,6 +107,30 @@ export default function RITMsPage() {
               </div>
             )}
             <div className="flex items-center gap-3">
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                <Button
+                  onClick={() => setViewMode('cards')}
+                  variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`h-8 ${viewMode === 'cards' ? 'shadow-sm' : ''}`}
+                  title="Card View"
+                >
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Cards
+                </Button>
+                <Button
+                  onClick={() => setViewMode('table')}
+                  variant={viewMode === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`h-8 ${viewMode === 'table' ? 'shadow-sm' : ''}`}
+                  title="Table View"
+                >
+                  <Table2 className="h-4 w-4 mr-2" />
+                  Table
+                </Button>
+              </div>
+              
               <Button
                 onClick={() => fetchRITMs()}
                 disabled={loading}
@@ -147,25 +173,29 @@ export default function RITMsPage() {
               </div>
             ) : (
               <>
-                <div className={`grid gap-6 ${
-                  activeDashboard?.settings.layout === 'list' 
-                    ? 'grid-cols-1' 
-                    : activeDashboard?.settings.layout === 'table'
-                    ? 'grid-cols-1'
-                    : 'md:grid-cols-2 lg:grid-cols-3'
-                }`}>
-                  {ritms.length > 0 ? (
-                    ritms.map((ritm) => (
-                      <RequestItemCard key={ritm.sys_id} requestItem={ritm} />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-12">
-                      <p className="text-muted-foreground">No RITMs found</p>
-                    </div>
-                  )}
-                </div>
+                {viewMode === 'table' ? (
+                  <RequestItemTable requestItems={ritms} />
+                ) : (
+                  <div className={`grid gap-6 ${
+                    activeDashboard?.settings.layout === 'list' 
+                      ? 'grid-cols-1' 
+                      : activeDashboard?.settings.layout === 'table'
+                      ? 'grid-cols-1'
+                      : 'md:grid-cols-2 lg:grid-cols-3'
+                  }`}>
+                    {ritms.length > 0 ? (
+                      ritms.map((ritm) => (
+                        <RequestItemCard key={ritm.sys_id} requestItem={ritm} />
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-12">
+                        <p className="text-muted-foreground">No RITMs found</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                {ritms.length > 0 && (
+                {ritms.length > 0 && viewMode === 'cards' && (
                   <Alert className="mt-8 bg-blue-50 border-blue-200">
                     <AlertDescription className="text-blue-700">
                       Found {ritms.length} RITMs. Showing up to {activeDashboard?.settings.limit || 50} request items from ServiceNow.
