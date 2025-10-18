@@ -9,8 +9,7 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-  Loader2,
-  ExternalLink
+  Loader2
 } from "lucide-react"
 
 interface RequestItemTableProps {
@@ -161,12 +160,6 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
                       <span className="font-semibold text-sm text-slate-900">
                         {String(item.number || item.sys_id)}
                       </span>
-                      <button 
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="View details"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5 text-slate-400 hover:text-blue-600" />
-                      </button>
                     </div>
                   </td>
                   <td className="px-4 py-4 max-w-md">
