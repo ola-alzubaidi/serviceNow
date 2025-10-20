@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession, signOut } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { RequestItemCard } from "@/components/RequestItemCard"
 import { RequestItemTable } from "@/components/RequestItemTable"
@@ -24,7 +24,7 @@ export default function RITMsPage() {
   const [activeDashboard, setActiveDashboard] = useState<DashboardConfig | null>(null)
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
 
-  const fetchRITMs = async (limit?: number) => {
+  const fetchRITMs = useCallback(async (limit?: number) => {
     setLoading(true)
     setError(null)
     try {
@@ -41,7 +41,7 @@ export default function RITMsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [activeDashboard?.settings.limit])
 
   const handleDashboardChange = (dashboard: DashboardConfig) => {
     setActiveDashboard(dashboard)
@@ -68,7 +68,7 @@ export default function RITMsPage() {
     } else if (mounted && (session as any)?.basicAuth) {
       fetchRITMs()
     }
-  }, [session, status, mounted, router, activeDashboard])
+  }, [session, status, mounted, router, activeDashboard, fetchRITMs])
 
   if (!mounted || status === "loading") {
     return (
