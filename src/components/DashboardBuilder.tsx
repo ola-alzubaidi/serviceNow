@@ -110,14 +110,6 @@ export function DashboardBuilder({ dashboard }: DashboardBuilderProps) {
             {dashboard.description && (
               <p className="text-slate-600 mt-1">{dashboard.description}</p>
             )}
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                Custom Dashboard
-              </span>
-              <span className="text-xs text-slate-500">
-                {widgets.length} widget{widgets.length !== 1 ? 's' : ''}
-              </span>
-            </div>
           </div>
           <Button
             onClick={() => setShowWidgetMenu(!showWidgetMenu)}
@@ -176,13 +168,6 @@ export function DashboardBuilder({ dashboard }: DashboardBuilderProps) {
             <p className="text-slate-600 mb-6">
               Get started by adding widgets to display data, charts, and information. Click the "Add Widget" button above to begin customizing your dashboard.
             </p>
-            <Button
-              onClick={() => setShowWidgetMenu(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Widget
-            </Button>
           </div>
         </div>
       ) : (
