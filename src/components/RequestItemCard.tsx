@@ -7,11 +7,7 @@ import {
   Calendar, 
   User, 
   Clock, 
-  FileText,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
-  Loader2
+  FileText
 } from "lucide-react"
 
 interface RequestItemCardProps {
@@ -24,28 +20,24 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
     if (p === '1' || p === 'critical') {
       return { 
         label: 'Critical', 
-        class: 'bg-red-100 text-red-700 border-red-300',
-        icon: <AlertCircle className="h-3 w-3" />
+        class: 'bg-red-100 text-red-700 border-red-300'
       }
     }
     if (p === '2' || p === 'high') {
       return { 
         label: 'High', 
-        class: 'bg-orange-100 text-orange-700 border-orange-300',
-        icon: <AlertCircle className="h-3 w-3" />
+        class: 'bg-orange-100 text-orange-700 border-orange-300'
       }
     }
     if (p === '3' || p === 'medium') {
       return { 
         label: 'Medium', 
-        class: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-        icon: <AlertCircle className="h-3 w-3" />
+        class: 'bg-yellow-100 text-yellow-700 border-yellow-300'
       }
     }
     return { 
       label: 'Low', 
-      class: 'bg-green-100 text-green-700 border-green-300',
-      icon: <AlertCircle className="h-3 w-3" />
+      class: 'bg-green-100 text-green-700 border-green-300'
     }
   }
 
@@ -54,42 +46,36 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
     if (s === 'new' || s === '1') {
       return { 
         label: 'New', 
-        class: 'bg-blue-100 text-blue-700 border-blue-300',
-        icon: <FileText className="h-3 w-3" />
+        class: 'bg-blue-100 text-blue-700 border-blue-300'
       }
     }
     if (s === 'in progress' || s === 'assigned' || s === '2' || s === '3') {
       return { 
         label: 'In Progress', 
-        class: 'bg-purple-100 text-purple-700 border-purple-300',
-        icon: <AlertCircle className="h-3 w-3" />
+        class: 'bg-purple-100 text-purple-700 border-purple-300'
       }
     }
     if (s === 'resolved' || s === '4') {
       return { 
         label: 'Resolved', 
-        class: 'bg-green-100 text-green-700 border-green-300',
-        icon: <CheckCircle2 className="h-3 w-3" />
+        class: 'bg-green-100 text-green-700 border-green-300'
       }
     }
     if (s === 'closed' || s === '6' || s === '7') {
       return { 
         label: 'Closed', 
-        class: 'bg-slate-100 text-slate-700 border-slate-300',
-        icon: <CheckCircle2 className="h-3 w-3" />
+        class: 'bg-slate-100 text-slate-700 border-slate-300'
       }
     }
     if (s === 'cancelled' || s === '5') {
       return { 
         label: 'Cancelled', 
-        class: 'bg-red-100 text-red-700 border-red-300',
-        icon: <XCircle className="h-3 w-3" />
+        class: 'bg-red-100 text-red-700 border-red-300'
       }
     }
     return { 
       label: state || 'Unknown', 
-      class: 'bg-slate-100 text-slate-700 border-slate-300',
-      icon: <FileText className="h-3 w-3" />
+      class: 'bg-slate-100 text-slate-700 border-slate-300'
     }
   }
 
@@ -144,14 +130,12 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
           
           <div className="flex flex-col gap-1.5 items-end">
             {stateConfig && (
-              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${stateConfig.class}`}>
-                {stateConfig.icon}
+              <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${stateConfig.class}`}>
                 {stateConfig.label}
               </div>
             )}
             {priorityConfig && (
-              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${priorityConfig.class}`}>
-                {priorityConfig.icon}
+              <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${priorityConfig.class}`}>
                 {priorityConfig.label}
               </div>
             )}

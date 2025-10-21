@@ -5,11 +5,7 @@ import {
   Calendar, 
   User, 
   Clock, 
-  FileText,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
-  Loader2
+  FileText
 } from "lucide-react"
 
 interface RequestItemTableProps {
@@ -20,25 +16,21 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
   const getPriorityBadge = (priority: string) => {
     const p = priority?.toLowerCase()
     if (p === '1' || p === 'critical') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-300">
-        <AlertCircle className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-300">
         Critical
       </span>
     }
     if (p === '2' || p === 'high') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-300">
-        <AlertCircle className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-300">
         High
       </span>
     }
     if (p === '3' || p === 'medium') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-300">
-        <AlertCircle className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-300">
         Medium
       </span>
     }
-    return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
-      <AlertCircle className="h-3 w-3" />
+    return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
       Low
     </span>
   }
@@ -46,37 +38,31 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
   const getStateBadge = (state: string) => {
     const s = state?.toLowerCase()
     if (s === 'new' || s === '1') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
-        <FileText className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
         New
       </span>
     }
     if (s === 'in progress' || s === 'assigned' || s === '2' || s === '3') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300">
-        <AlertCircle className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300">
         In Progress
       </span>
     }
     if (s === 'resolved' || s === '4') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
-        <CheckCircle2 className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
         Resolved
       </span>
     }
     if (s === 'closed' || s === '6' || s === '7') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
-        <CheckCircle2 className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
         Closed
       </span>
     }
     if (s === 'cancelled' || s === '5') {
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-300">
-        <XCircle className="h-3 w-3" />
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-300">
         Cancelled
       </span>
     }
-    return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
-      <FileText className="h-3 w-3" />
+    return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
       {state || 'Unknown'}
     </span>
   }
