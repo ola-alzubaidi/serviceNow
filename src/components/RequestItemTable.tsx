@@ -41,7 +41,7 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
       </span>
     }
     if (s === 'in progress' || s === 'assigned' || s === '2' || s === '3') {
-      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300">
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300 whitespace-nowrap">
         In Progress
       </span>
     }

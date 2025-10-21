@@ -49,7 +49,7 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
     }
     if (s === 'in progress' || s === 'assigned' || s === '2' || s === '3') {
       return { 
-        label: 'In Progress', 
+        label: 'In\u00A0Progress', 
         class: 'bg-purple-100 text-purple-700 border-purple-300'
       }
     }
