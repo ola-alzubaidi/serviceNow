@@ -166,7 +166,7 @@ export function DashboardBuilder({ dashboard }: DashboardBuilderProps) {
               Your Dashboard is Empty
             </h3>
             <p className="text-slate-600 mb-6">
-              Get started by adding widgets to display data, charts, and information. Click the "Add Widget" button above to begin customizing your dashboard.
+              Get started by adding widgets to display data, charts, and information. Click the &quot;Add Widget&quot; button above to begin customizing your dashboard.
             </p>
           </div>
         </div>
