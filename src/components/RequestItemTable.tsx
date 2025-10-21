@@ -2,9 +2,7 @@
 
 import { ServiceNowRecord } from "@/lib/servicenow"
 import { 
-  Calendar, 
   User, 
-  Clock, 
   FileText
 } from "lucide-react"
 
@@ -48,7 +46,7 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
       </span>
     }
     if (s === 'resolved' || s === '4') {
-      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700 border border-teal-300">
         Resolved
       </span>
     }
@@ -170,26 +168,20 @@ export function RequestItemTable({ requestItems }: RequestItemTableProps) {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                      <span 
-                        className="text-sm text-slate-600"
-                        title={formatDate(item.created_on || '')}
-                      >
-                        {formatRelativeTime(item.created_on || '')}
-                      </span>
-                    </div>
+                    <span 
+                      className="text-sm text-slate-600"
+                      title={formatDate(item.created_on || '')}
+                    >
+                      {formatRelativeTime(item.created_on || '')}
+                    </span>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-slate-400" />
-                      <span 
-                        className="text-sm text-slate-600"
-                        title={formatDate(item.updated_on || '')}
-                      >
-                        {formatRelativeTime(item.updated_on || '')}
-                      </span>
-                    </div>
+                    <span 
+                      className="text-sm text-slate-600"
+                      title={formatDate(item.updated_on || '')}
+                    >
+                      {formatRelativeTime(item.updated_on || '')}
+                    </span>
                   </td>
                 </tr>
               ))

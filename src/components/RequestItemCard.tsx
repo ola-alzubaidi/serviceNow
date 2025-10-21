@@ -4,9 +4,7 @@ import { ServiceNowRecord } from "@/lib/servicenow"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { 
-  Calendar, 
   User, 
-  Clock, 
   FileText
 } from "lucide-react"
 
@@ -58,7 +56,7 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
     if (s === 'resolved' || s === '4') {
       return { 
         label: 'Resolved', 
-        class: 'bg-green-100 text-green-700 border-green-300'
+        class: 'bg-teal-100 text-teal-700 border-teal-300'
       }
     }
     if (s === 'closed' || s === '6' || s === '7') {
@@ -183,7 +181,6 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
         {/* Date Information */}
         <div className="flex items-center justify-between text-xs pt-2 border-t">
           <div className="flex items-center gap-1.5 text-slate-500">
-            <Calendar className="h-3.5 w-3.5" />
             <span className="font-medium">Created:</span>
             <span title={formatFullDate(requestItem.created_on || '')}>
               {formatDate(requestItem.created_on || '')}
@@ -191,7 +188,6 @@ export function RequestItemCard({ requestItem }: RequestItemCardProps) {
           </div>
           
           <div className="flex items-center gap-1.5 text-slate-500">
-            <Clock className="h-3.5 w-3.5" />
             <span className="font-medium">Updated:</span>
             <span title={formatFullDate(requestItem.updated_on || '')}>
               {formatDate(requestItem.updated_on || '')}
